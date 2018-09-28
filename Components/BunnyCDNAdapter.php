@@ -12,13 +12,14 @@ class BunnyCDNAdapter implements AdapterInterface
     private $apiKey;
     private $apiUrl;
     private $url;
+    private $cache;
 
-    public function __construct($config)
+    public function __construct($config, \Zend_Cache_Core $cache)
     {
         $this->apiUrl = $config['apiUrl'];
         $this->apiKey = $config['apiKey'];
         $this->url = $config['mediaUrl'];
-        $this->inMigration = $config['migration'];
+        $this->cache = $cache;
     }
 
 
@@ -189,6 +190,9 @@ class BunnyCDNAdapter implements AdapterInterface
             return false;
         }
 
+        $cacheId = md5('bunnycdn_has' . $path);
+        $this->cache->remove($cacheId);
+
         return true;
     }
 
@@ -243,7 +247,16 @@ class BunnyCDNAdapter implements AdapterInterface
             return true;
         }
 
-        return (bool)$this->getSize($path);
+        $cacheId = md5('bunnycdn_has' . $path);
+
+        $result = $this->cache->load($cacheId);
+
+        if(!$result) {
+            $result = (bool)$this->getSize($path);
+            $this->cache->save($result,$cacheId);
+        }
+
+        return $result;
     }
 
     /**
@@ -371,46 +384,5 @@ class BunnyCDNAdapter implements AdapterInterface
             'path' => $path,
             'visibility' => AdapterInterface::VISIBILITY_PUBLIC,
         ];
-    }
-
-    private function run(
-        $call_arr = array(
-            'call_method' => 'GET',
-            'api_url' => 'api_url',
-            'header' => array(),
-            'post_data_array' => array(),
-        )
-    ) {
-        $call_method = isset($call_arr['call_method']) ? $call_arr['call_method'] : 'GET';
-        $api_url = isset($call_arr['api_url']) ? $call_arr['api_url'] : 'api_url';
-        $header = isset($call_arr['header']) ? $call_arr['header'] : array(
-            'Content-Type:application/json',
-            'AccessKey:' . $this->apiKey . ''
-        );
-        $post_data_array = isset($call_arr['post_data_array']) ? $call_arr['post_data_array'] : '';
-        $post_data = json_encode($post_data_array);
-
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
-
-        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $call_method);
-        curl_setopt($curl, CURLOPT_URL, $api_url);
-
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-
-        curl_setopt($curl, CURLOPT_POST, 1);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $post_data);
-
-        $result = curl_exec($curl);
-        $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
-
-        //For error checking
-        if ($result === false) {
-            return array('status' => 'error', 'code' => 'curl_error', 'result' => curl_error($curl),);
-        }
-
-        return array('http_code' => $http_code, 'data' => $result,);
     }
 }

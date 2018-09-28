@@ -4,12 +4,17 @@ namespace TinectMediaBunnycdn\Subscriber;
 
 use Enlight\Event\SubscriberInterface;
 use Enlight_Event_EventArgs;
-use Shopware\Components\HttpClient\GuzzleFactory;
 use TinectMediaBunnycdn\Components\BunnyCDNAdapter;
-use League\Flysystem\AdapterInterface;
 
 class AdapterCollectionSubscriber implements SubscriberInterface
 {
+
+    private $cache;
+
+    public function __construct(\Zend_Cache_Core $cache)
+    {
+        $this->cache = $cache;
+    }
 
     /**
      * {@inheritdoc}
@@ -32,6 +37,6 @@ class AdapterCollectionSubscriber implements SubscriberInterface
         $defaultConfig = ['migration' => false];
         $config = $args->get('config');
 
-        return new BunnyCDNAdapter(array_merge($config,$defaultConfig));
+        return new BunnyCDNAdapter(array_merge($config,$defaultConfig), $this->cache);
     }
 }

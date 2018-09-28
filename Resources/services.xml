@@ -6,6 +6,7 @@
 
     <services>
         <service id="swag_media_bunnycdn.subscriber.adapter_collection_subscriber" class="TinectMediaBunnycdn\Subscriber\AdapterCollectionSubscriber">
+            <argument type="service" id="cache"/>
             <tag name="shopware.event_subscriber"/>
         </service>
     </services>
