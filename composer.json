@@ -1,0 +1,20 @@
+{
+  "name": "tinect/mediabunnycdn",
+  "keywords": ["shopware", "backend", "media", "media manager", "bunnyCDN"],
+  "description": "bunnyCDN",
+  "license": "MIT",
+  "type": "shopware-plugin",
+  "authors": [
+    {
+      "name": "tinect",
+      "homepage": "https://github.com/tinect",
+      "role": "Developer"
+    }
+  ],
+  "extra": {
+    "installer-name": "TinectMediaBunnycdn"
+  },
+  "require": {
+    "composer/installers": "~1.0"
+  }
+}
