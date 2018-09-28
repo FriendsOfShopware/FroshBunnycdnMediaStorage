@@ -5,6 +5,7 @@ namespace TinectMediaBunnycdn\Components;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Config;
 use League\Flysystem\Util;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class BunnyCDNAdapter implements AdapterInterface
 {
@@ -13,13 +14,15 @@ class BunnyCDNAdapter implements AdapterInterface
     private $apiUrl;
     private $url;
     private $cache;
+    private $container;
 
-    public function __construct($config, \Zend_Cache_Core $cache)
+    public function __construct($config, \Zend_Cache_Core $cache, ContainerInterface $container)
     {
         $this->apiUrl = $config['apiUrl'];
         $this->apiKey = $config['apiKey'];
         $this->url = $config['mediaUrl'];
         $this->cache = $cache;
+        $this->container = $container;
     }
 
 
@@ -240,10 +243,11 @@ class BunnyCDNAdapter implements AdapterInterface
      * @param string $path
      *
      * @return array|bool|null
+     * @throws \Zend_Cache_Exception
      */
     public function has($path)
     {
-        if (Shopware()->Container()->has('Shop')) {
+        if ($this->container->has('Shop')) {
             return true;
         }
 
@@ -251,9 +255,9 @@ class BunnyCDNAdapter implements AdapterInterface
 
         $result = $this->cache->load($cacheId);
 
-        if(!$result) {
+        if (!$result) {
             $result = (bool)$this->getSize($path);
-            $this->cache->save($result,$cacheId);
+            $this->cache->save($result, $cacheId);
         }
 
         return $result;

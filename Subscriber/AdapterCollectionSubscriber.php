@@ -4,16 +4,19 @@ namespace TinectMediaBunnycdn\Subscriber;
 
 use Enlight\Event\SubscriberInterface;
 use Enlight_Event_EventArgs;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use TinectMediaBunnycdn\Components\BunnyCDNAdapter;
 
 class AdapterCollectionSubscriber implements SubscriberInterface
 {
 
     private $cache;
+    private $container;
 
-    public function __construct(\Zend_Cache_Core $cache)
+    public function __construct(\Zend_Cache_Core $cache, ContainerInterface $container)
     {
         $this->cache = $cache;
+        $this->container = $container;
     }
 
     /**
@@ -37,6 +40,6 @@ class AdapterCollectionSubscriber implements SubscriberInterface
         $defaultConfig = ['migration' => false];
         $config = $args->get('config');
 
-        return new BunnyCDNAdapter(array_merge($config,$defaultConfig), $this->cache);
+        return new BunnyCDNAdapter(array_merge($config,$defaultConfig), $this->cache, $this->container);
     }
 }
