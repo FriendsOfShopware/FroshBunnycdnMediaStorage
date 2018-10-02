@@ -16,17 +16,23 @@ Update your `config.php` in your root directory and fill in your own values
 ```php
 'cdn' => [
     'backend' => 'bunnycdn',
-            'adapters' => [
-                'bunnycdn' =>
-                    [
-                        'type' => 'bunnycdn',
-                        'mediaUrl' => 'https://example.b-cdn.net/',
-                        'apiUrl' => 'https://storage.bunnycdn.com/example/',
-                        'apiKey' => 'secret-api-key'
-                    ]
-             ]
+    'adapters' => [
+        'bunnycdn' =>
+            [
+                'type' => 'bunnycdn',
+                'mediaUrl' => 'https://example.b-cdn.net/',
+                'apiUrl' => 'https://storage.bunnycdn.com/example/',
+                'apiKey' => 'secret-api-key'
+            ]
+     ]
 ]
 ```
+
+## Migration
+`bin/console sw:media:migrate --from=local --to=bunnycdn`
+
+More info: https://developers.shopware.com/developers-guide/shopware-5-media-service/#file-system-adapters
+
 
 ## License
 
