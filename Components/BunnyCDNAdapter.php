@@ -34,6 +34,7 @@ class BunnyCDNAdapter implements AdapterInterface
      * @param Config $config Config object
      *
      * @return array|false false on failure file meta data on success
+     * @throws \Zend_Cache_Exception
      */
     public function write($path, $contents, Config $config)
     {
@@ -63,6 +64,7 @@ class BunnyCDNAdapter implements AdapterInterface
      * @param Config $config Config object
      *
      * @return array|false false on failure file meta data on success
+     * @throws \Zend_Cache_Exception
      */
     public function writeStream($path, $resource, Config $config)
     {
@@ -95,6 +97,12 @@ class BunnyCDNAdapter implements AdapterInterface
             return false;
         }
 
+
+        $cacheId = md5('bunnycdn_has' . $path);
+
+        $this->cache->save(true, $cacheId);
+
+
         $type = 'file';
 
         return compact('type', 'path', 'visibility');
@@ -109,6 +117,7 @@ class BunnyCDNAdapter implements AdapterInterface
      * @param Config $config Config object
      *
      * @return array|false false on failure file meta data on success
+     * @throws \Zend_Cache_Exception
      */
     public function update($path, $contents, Config $config)
     {
@@ -124,6 +133,7 @@ class BunnyCDNAdapter implements AdapterInterface
      * @param Config $config Config object
      *
      * @return array|false false on failure file meta data on success
+     * @throws \Zend_Cache_Exception
      */
     public function updateStream($path, $resource, Config $config)
     {
@@ -138,10 +148,14 @@ class BunnyCDNAdapter implements AdapterInterface
      * @param string $newpath
      *
      * @return bool
+     * @throws \Zend_Cache_Exception
      */
     public function rename($path, $newpath)
     {
-        // TODO: Implement rename() method.
+        $this->write($newpath, $this->read($path), new Config()); //TODO: check config
+        $this->delete($path);
+
+        return true;
     }
 
     /**
@@ -151,11 +165,11 @@ class BunnyCDNAdapter implements AdapterInterface
      * @param string $newpath
      *
      * @return bool
+     * @throws \Zend_Cache_Exception
      */
     public function copy($path, $newpath)
     {
         $this->write($newpath, $this->read($path), new Config()); //TODO: check config
-        $this->delete($path);
 
         return true;
     }
