@@ -13,7 +13,12 @@ class BunnyCDNAdapter implements AdapterInterface
     private $apiKey;
     private $apiUrl;
     private $url;
+    private $cacheDir;
+
+    /** @var \Zend_Cache_Core */
     private $cache;
+
+    /** @var ContainerInterface */
     private $container;
 
     public function __construct($config, \Zend_Cache_Core $cache, ContainerInterface $container)
@@ -21,8 +26,10 @@ class BunnyCDNAdapter implements AdapterInterface
         $this->apiUrl = $config['apiUrl'];
         $this->apiKey = $config['apiKey'];
         $this->url = $config['mediaUrl'];
-        $this->cache = $cache;
         $this->container = $container;
+        $this->cacheDir = $this->container->getParameter('kernel.cache_dir') . '/bunnycdn/';
+
+        $this->cache = $cache;
     }
 
 
@@ -97,11 +104,13 @@ class BunnyCDNAdapter implements AdapterInterface
             return false;
         }
 
+        $result = $this->getCached($path);
+        $fileCacheKey = md5($path);
 
-        $cacheId = md5('bunnycdn_has' . $path);
-
-        $this->cache->save(true, $cacheId);
-
+        if (!$result[$fileCacheKey]) {
+            $result[$fileCacheKey] = true;
+            $this->cache->save($result, $this->getCacheKey($path));
+        }
 
         $type = 'file';
 
@@ -207,8 +216,7 @@ class BunnyCDNAdapter implements AdapterInterface
             return false;
         }
 
-        $cacheId = md5('bunnycdn_has' . $path);
-        $this->cache->remove($cacheId);
+        $this->cache->remove($this->getCacheKey($path));
 
         return true;
     }
@@ -251,6 +259,28 @@ class BunnyCDNAdapter implements AdapterInterface
         return [];
     }
 
+    private function getCacheKey($path)
+    {
+        $a = md5($path);
+        return $a[0].$a[1];
+
+        return substr(md5($path),0,2);
+    }
+
+    private function getCached($path)
+    {
+        $cacheId = $this->getCacheKey($path);
+
+        $result = $this->cache->load($cacheId);
+
+        if ($result) {
+            return $result;
+        }
+
+        return [];
+
+    }
+
     /**
      * Check whether a file exists.
      *
@@ -265,16 +295,18 @@ class BunnyCDNAdapter implements AdapterInterface
             return true;
         }
 
-        $cacheId = md5('bunnycdn_has' . $path);
+        $result = $this->getCached($path);
+        $fileCacheKey = md5($path);
 
-        $result = $this->cache->load($cacheId);
+        if (!$result[$fileCacheKey]) {
+            $result[$fileCacheKey] = true;
 
-        if (!$result) {
-            $result = (bool)$this->getSize($path);
-            $this->cache->save($result, $cacheId);
+            if ((bool)$this->getSize($path)) {
+                $this->cache->save($result, $this->getCacheKey($path));
+            }
         }
 
-        return $result;
+        return $result[$fileCacheKey];
     }
 
     /**

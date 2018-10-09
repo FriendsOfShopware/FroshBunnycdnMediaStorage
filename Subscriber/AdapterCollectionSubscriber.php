@@ -10,12 +10,10 @@ use TinectMediaBunnycdn\Components\BunnyCDNAdapter;
 class AdapterCollectionSubscriber implements SubscriberInterface
 {
 
-    private $cache;
     private $container;
 
-    public function __construct(\Zend_Cache_Core $cache, ContainerInterface $container)
+    public function __construct(ContainerInterface $container)
     {
-        $this->cache = $cache;
         $this->container = $container;
     }
 
@@ -34,12 +32,26 @@ class AdapterCollectionSubscriber implements SubscriberInterface
      *
      * @param Enlight_Event_EventArgs $args
      * @return BunnyCDNAdapter
+     * @throws \Zend_Cache_Exception
      */
     public function createBunnyCDNAdapter(Enlight_Event_EventArgs $args)
     {
         $defaultConfig = ['migration' => false];
         $config = $args->get('config');
 
-        return new BunnyCDNAdapter(array_merge($config,$defaultConfig), $this->cache, $this->container);
+        $cacheDir = $this->container->getParameter('kernel.cache_dir') . '/bunnycdn/';
+
+        if (!is_dir($cacheDir)) {
+            mkdir($cacheDir);
+        }
+
+        $cacheOptions = ['cache_dir' => $cacheDir, 'automatic_serialization' => true, 'lifetime' => null];
+
+        $cache = $this->container->get('cache_factory')->factory(
+            'file', $cacheOptions, $cacheOptions, $this->container->get('shopware.release')
+        );
+
+
+        return new BunnyCDNAdapter(array_merge($config,$defaultConfig), $cache, $this->container);
     }
 }
