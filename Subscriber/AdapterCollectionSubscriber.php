@@ -4,6 +4,7 @@ namespace TinectMediaBunnycdn\Subscriber;
 
 use Enlight\Event\SubscriberInterface;
 use Enlight_Event_EventArgs;
+use Doctrine\Common\Cache\FilesystemCache;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use TinectMediaBunnycdn\Components\BunnyCDNAdapter;
 
@@ -11,10 +12,12 @@ class AdapterCollectionSubscriber implements SubscriberInterface
 {
 
     private $container;
+    private $cache;
 
-    public function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container, FilesystemCache $cache)
     {
         $this->container = $container;
+        $this->cache = $cache;
     }
 
     /**
@@ -39,19 +42,7 @@ class AdapterCollectionSubscriber implements SubscriberInterface
         $defaultConfig = ['migration' => false];
         $config = $args->get('config');
 
-        $cacheDir = $this->container->getParameter('kernel.cache_dir') . '/bunnycdn/';
 
-        if (!is_dir($cacheDir)) {
-            mkdir($cacheDir);
-        }
-
-        $cacheOptions = ['cache_dir' => $cacheDir, 'automatic_serialization' => true, 'lifetime' => null];
-
-        $cache = $this->container->get('cache_factory')->factory(
-            'file', $cacheOptions, $cacheOptions, $this->container->get('shopware.release')
-        );
-
-
-        return new BunnyCDNAdapter(array_merge($config,$defaultConfig), $cache, $this->container);
+        return new BunnyCDNAdapter(array_merge($config,$defaultConfig), $this->cache, $this->container);
     }
 }

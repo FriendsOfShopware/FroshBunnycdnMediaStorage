@@ -2,6 +2,7 @@
 
 namespace TinectMediaBunnycdn\Components;
 
+use Doctrine\Common\Cache\FilesystemCache;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Config;
 use League\Flysystem\Util;
@@ -14,13 +15,13 @@ class BunnyCDNAdapter implements AdapterInterface
     private $apiUrl;
     private $url;
 
-    /** @var \Zend_Cache_Core */
+    /** @var FilesystemCache */
     private $cache;
 
     /** @var ContainerInterface */
     private $container;
 
-    public function __construct($config, \Zend_Cache_Core $cache, ContainerInterface $container)
+    public function __construct($config, FilesystemCache $cache, ContainerInterface $container)
     {
         $this->apiUrl = $config['apiUrl'];
         $this->apiKey = $config['apiKey'];
@@ -68,7 +69,6 @@ class BunnyCDNAdapter implements AdapterInterface
      * @param Config $config Config object
      *
      * @return array|false false on failure file meta data on success
-     * @throws \Zend_Cache_Exception
      */
     public function writeStream($path, $resource, Config $config)
     {
@@ -105,7 +105,7 @@ class BunnyCDNAdapter implements AdapterInterface
 
         if (!$result[$path]) {
             $result[$path] = true;
-            $this->cache->save($result, $this->getCacheKey($path));
+            $this->cache->save($this->getCacheKey($path), $result);
         }
 
         $type = 'file';
@@ -212,7 +212,7 @@ class BunnyCDNAdapter implements AdapterInterface
             return false;
         }
 
-        $this->cache->remove($this->getCacheKey($path));
+        $this->cache->delete($this->getCacheKey($path));
 
         return true;
     }
@@ -264,7 +264,7 @@ class BunnyCDNAdapter implements AdapterInterface
     {
         $cacheId = $this->getCacheKey($path);
 
-        $result = $this->cache->load($cacheId);
+        $result = $this->cache->fetch($cacheId);
 
         if ($result) {
             return $result;
@@ -280,7 +280,6 @@ class BunnyCDNAdapter implements AdapterInterface
      * @param string $path
      *
      * @return array|bool|null
-     * @throws \Zend_Cache_Exception
      */
     public function has($path)
     {
@@ -294,7 +293,7 @@ class BunnyCDNAdapter implements AdapterInterface
             $result[$path] = true;
 
             if ((bool)$this->getSize($path)) {
-                $this->cache->save($result, $this->getCacheKey($path));
+                $this->cache->save($this->getCacheKey($path), $result);
             }
         }
 
