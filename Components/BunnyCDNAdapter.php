@@ -105,10 +105,9 @@ class BunnyCDNAdapter implements AdapterInterface
         }
 
         $result = $this->getCached($path);
-        $fileCacheKey = md5($path);
 
-        if (!$result[$fileCacheKey]) {
-            $result[$fileCacheKey] = true;
+        if (!$result[$path]) {
+            $result[$path] = true;
             $this->cache->save($result, $this->getCacheKey($path));
         }
 
@@ -261,10 +260,7 @@ class BunnyCDNAdapter implements AdapterInterface
 
     private function getCacheKey($path)
     {
-        $a = md5($path);
-        return $a[0].$a[1];
-
-        return substr(md5($path),0,2);
+        return md5($path)[0];
     }
 
     private function getCached($path)
@@ -296,17 +292,16 @@ class BunnyCDNAdapter implements AdapterInterface
         }
 
         $result = $this->getCached($path);
-        $fileCacheKey = md5($path);
 
-        if (!$result[$fileCacheKey]) {
-            $result[$fileCacheKey] = true;
+        if (!$result[$path]) {
+            $result[$path] = true;
 
             if ((bool)$this->getSize($path)) {
                 $this->cache->save($result, $this->getCacheKey($path));
             }
         }
 
-        return $result[$fileCacheKey];
+        return $result[$path];
     }
 
     /**
