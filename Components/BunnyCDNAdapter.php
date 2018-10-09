@@ -97,10 +97,13 @@ class BunnyCDNAdapter implements AdapterInterface
             return false;
         }
 
+        $result = $this->getCached();
 
-        $cacheId = md5('bunnycdn_has' . $path);
+        if (!$result[$path]) {
+            $result[$path] = true;
 
-        $this->cache->save(true, $cacheId);
+            $this->cache->save($result, $this->getCacheKey(),[],null);
+        }
 
 
         $type = 'file';
@@ -207,8 +210,7 @@ class BunnyCDNAdapter implements AdapterInterface
             return false;
         }
 
-        $cacheId = md5('bunnycdn_has' . $path);
-        $this->cache->remove($cacheId);
+        $this->cache->remove($this->getCacheKey());
 
         return true;
     }
@@ -251,6 +253,25 @@ class BunnyCDNAdapter implements AdapterInterface
         return [];
     }
 
+    private function getCacheKey()
+    {
+        return md5('bunnycdn_has');
+    }
+
+    private function getCached()
+    {
+        $cacheId = $this->getCacheKey();
+
+        $result = $this->cache->load($cacheId);
+
+        if ($result) {
+            return $result;
+        }
+
+        return [];
+
+    }
+
     /**
      * Check whether a file exists.
      *
@@ -265,16 +286,17 @@ class BunnyCDNAdapter implements AdapterInterface
             return true;
         }
 
-        $cacheId = md5('bunnycdn_has' . $path);
+        $result = $this->getCached();
 
-        $result = $this->cache->load($cacheId);
+        if (!$result[$path]) {
+            $result[$path] = (bool)$this->getSize($path);
 
-        if (!$result) {
-            $result = (bool)$this->getSize($path);
-            $this->cache->save($result, $cacheId);
+            if ($result[$path]) {
+                $this->cache->save($result, $this->getCacheKey(),[],null);
+            }
         }
 
-        return $result;
+        return $result[$path];
     }
 
     /**
