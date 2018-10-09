@@ -13,7 +13,6 @@ class BunnyCDNAdapter implements AdapterInterface
     private $apiKey;
     private $apiUrl;
     private $url;
-    private $cacheDir;
 
     /** @var \Zend_Cache_Core */
     private $cache;
@@ -27,8 +26,6 @@ class BunnyCDNAdapter implements AdapterInterface
         $this->apiKey = $config['apiKey'];
         $this->url = $config['mediaUrl'];
         $this->container = $container;
-        $this->cacheDir = $this->container->getParameter('kernel.cache_dir') . '/bunnycdn/';
-
         $this->cache = $cache;
     }
 
