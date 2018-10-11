@@ -290,9 +290,8 @@ class BunnyCDNAdapter implements AdapterInterface
         $result = $this->getCached($path);
 
         if (!$result[$path]) {
-            $result[$path] = true;
-
             if ((bool)$this->getSize($path)) {
+                $result[$path] = true;
                 $this->cache->save($this->getCacheKey($path), $result);
             }
         }
