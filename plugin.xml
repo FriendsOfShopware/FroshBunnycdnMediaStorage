@@ -3,7 +3,7 @@
 <plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/5.2/engine/Shopware/Components/Plugin/schema/plugin.xsd">
 
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <author>tinect</author>
     <license>MIT</license>
 
@@ -29,6 +29,13 @@ config.php:
 dont't forget running "bin/console sw:media:migrate --from=local --to=bunnycdn" if you have existing media.<br>
 More Info: https://developers.shopware.com/developers-guide/shopware-5-media-service/#file-system-adapters
         ]]></description>
+
+
+    <changelog version="1.0.1">
+        <changes><![CDATA[
+        - implement new cache
+        ]]></changes>
+    </changelog>
 
     <compatibility minVersion="5.2.0"/>
 
