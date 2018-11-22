@@ -2,6 +2,7 @@
 
 namespace TinectMediaBunnycdn\Components;
 
+use Doctrine\Common\Cache\FilesystemCache;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Config;
 use League\Flysystem\Util;
@@ -13,16 +14,20 @@ class BunnyCDNAdapter implements AdapterInterface
     private $apiKey;
     private $apiUrl;
     private $url;
+
+    /** @var FilesystemCache */
     private $cache;
+
+    /** @var ContainerInterface */
     private $container;
 
-    public function __construct($config, \Zend_Cache_Core $cache, ContainerInterface $container)
+    public function __construct($config, FilesystemCache $cache, ContainerInterface $container)
     {
         $this->apiUrl = $config['apiUrl'];
         $this->apiKey = $config['apiKey'];
         $this->url = $config['mediaUrl'];
-        $this->cache = $cache;
         $this->container = $container;
+        $this->cache = $cache;
     }
 
 
@@ -64,7 +69,6 @@ class BunnyCDNAdapter implements AdapterInterface
      * @param Config $config Config object
      *
      * @return array|false false on failure file meta data on success
-     * @throws \Zend_Cache_Exception
      */
     public function writeStream($path, $resource, Config $config)
     {
@@ -97,14 +101,12 @@ class BunnyCDNAdapter implements AdapterInterface
             return false;
         }
 
-        $result = $this->getCached();
+        $result = $this->getCached($path);
 
         if (!$result[$path]) {
             $result[$path] = true;
-
-            $this->cache->save($result, $this->getCacheKey(),[],null);
+            $this->cache->save($this->getCacheKey($path), $result);
         }
-
 
         $type = 'file';
 
@@ -210,7 +212,7 @@ class BunnyCDNAdapter implements AdapterInterface
             return false;
         }
 
-        $this->cache->remove($this->getCacheKey());
+        $this->cache->delete($this->getCacheKey($path));
 
         return true;
     }
@@ -253,16 +255,16 @@ class BunnyCDNAdapter implements AdapterInterface
         return [];
     }
 
-    private function getCacheKey()
+    private function getCacheKey($path)
     {
-        return md5('bunnycdn_has');
+        return md5($path)[0];
     }
 
-    private function getCached()
+    private function getCached($path)
     {
-        $cacheId = $this->getCacheKey();
+        $cacheId = $this->getCacheKey($path);
 
-        $result = $this->cache->load($cacheId);
+        $result = $this->cache->fetch($cacheId);
 
         if ($result) {
             return $result;
@@ -278,7 +280,6 @@ class BunnyCDNAdapter implements AdapterInterface
      * @param string $path
      *
      * @return array|bool|null
-     * @throws \Zend_Cache_Exception
      */
     public function has($path)
     {
@@ -286,13 +287,12 @@ class BunnyCDNAdapter implements AdapterInterface
             return true;
         }
 
-        $result = $this->getCached();
+        $result = $this->getCached($path);
 
         if (!$result[$path]) {
-            $result[$path] = (bool)$this->getSize($path);
-
-            if ($result[$path]) {
-                $this->cache->save($result, $this->getCacheKey(),[],null);
+            if ((bool)$this->getSize($path)) {
+                $result[$path] = true;
+                $this->cache->save($this->getCacheKey($path), $result);
             }
         }
 
