@@ -289,7 +289,7 @@ class BunnyCDNAdapter implements AdapterInterface
 
         $result = $this->getCached($path);
 
-        if (!$result[$path]) {
+        if (!isset($result[$path])) {
             if ((bool)$this->getSize($path)) {
                 $result[$path] = true;
                 $this->cache->save($this->getCacheKey($path), $result);
@@ -336,6 +336,49 @@ class BunnyCDNAdapter implements AdapterInterface
     }
 
     /**
+     * @param string $directory
+     * @param boolean $recursive
+     * @return array
+     */
+    private function getDirContent($directory, $recursive)
+    {
+        $curl = curl_init();
+        curl_setopt_array($curl,
+            array(
+                CURLOPT_CUSTOMREQUEST => 'GET',
+                CURLOPT_URL => $this->apiUrl . $directory . '/',
+                CURLOPT_RETURNTRANSFER => 1,
+                CURLOPT_TIMEOUT => 60000,
+                CURLOPT_FOLLOWLOCATION => 0,
+                CURLOPT_FAILONERROR => 0,
+                CURLOPT_SSL_VERIFYPEER => 1,
+                CURLOPT_VERBOSE => 0,
+                CURLOPT_HTTPHEADER => array(
+                    'accesskey: ' . $this->apiKey
+                )
+            ));
+        // Send the request
+        $response = curl_exec($curl);
+        curl_close($curl);
+        $result = [];
+
+        foreach (json_decode($response) as $content) {
+            $result[] = [
+                'basename' => $content->ObjectName,
+                'path' => $directory . '/' . $content->ObjectName,
+                'type' => ($content->IsDirectory ? 'dir' : 'file')
+            ];
+
+            if ($recursive && $content->IsDirectory) {
+                $result = array_merge($result,$this->getDirContent($directory . '/' . $content->ObjectName, true));
+            }
+
+        }
+
+        return $result;
+    }
+
+    /**
      * List contents of a directory.
      *
      * @param string $directory
@@ -345,7 +388,7 @@ class BunnyCDNAdapter implements AdapterInterface
      */
     public function listContents($directory = '', $recursive = false)
     {
-        // TODO: Implement listContents() method.
+        return $this->getDirContent($directory, $recursive);
     }
 
     /**
