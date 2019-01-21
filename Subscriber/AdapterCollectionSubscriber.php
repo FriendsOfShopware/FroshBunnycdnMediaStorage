@@ -1,12 +1,12 @@
 <?php
 
-namespace TinectMediaBunnycdn\Subscriber;
+namespace FroshBunnycdnMediaStorage\Subscriber;
 
 use Enlight\Event\SubscriberInterface;
 use Enlight_Event_EventArgs;
 use Doctrine\Common\Cache\FilesystemCache;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use TinectMediaBunnycdn\Components\BunnyCDNAdapter;
+use FroshBunnycdnMediaStorage\Components\BunnyCDNAdapter;
 
 class AdapterCollectionSubscriber implements SubscriberInterface
 {
@@ -41,7 +41,6 @@ class AdapterCollectionSubscriber implements SubscriberInterface
     {
         $defaultConfig = ['migration' => false];
         $config = $args->get('config');
-
 
         return new BunnyCDNAdapter(array_merge($config,$defaultConfig), $this->cache, $this->container);
     }

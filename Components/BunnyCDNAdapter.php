@@ -1,6 +1,6 @@
 <?php
 
-namespace TinectMediaBunnycdn\Components;
+namespace FroshBunnycdnMediaStorage\Components;
 
 use Doctrine\Common\Cache\FilesystemCache;
 use League\Flysystem\AdapterInterface;
