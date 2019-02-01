@@ -1,16 +1,15 @@
 <?php
 
-namespace TinectMediaBunnycdn\Subscriber;
+namespace FroshBunnycdnMediaStorage\Subscriber;
 
+use Doctrine\Common\Cache\FilesystemCache;
 use Enlight\Event\SubscriberInterface;
 use Enlight_Event_EventArgs;
-use Doctrine\Common\Cache\FilesystemCache;
+use FroshBunnycdnMediaStorage\Components\BunnyCDNAdapter;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use TinectMediaBunnycdn\Components\BunnyCDNAdapter;
 
 class AdapterCollectionSubscriber implements SubscriberInterface
 {
-
     private $container;
     private $cache;
 
@@ -26,7 +25,7 @@ class AdapterCollectionSubscriber implements SubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            'Shopware_Collect_MediaAdapter_bunnycdn' => 'createBunnyCDNAdapter'
+            'Shopware_Collect_MediaAdapter_bunnycdn' => 'createBunnyCDNAdapter',
         ];
     }
 
@@ -34,15 +33,16 @@ class AdapterCollectionSubscriber implements SubscriberInterface
      * Creates adapter instance
      *
      * @param Enlight_Event_EventArgs $args
-     * @return BunnyCDNAdapter
+     *
      * @throws \Zend_Cache_Exception
+     *
+     * @return BunnyCDNAdapter
      */
     public function createBunnyCDNAdapter(Enlight_Event_EventArgs $args)
     {
         $defaultConfig = ['migration' => false];
         $config = $args->get('config');
 
-
-        return new BunnyCDNAdapter(array_merge($config,$defaultConfig), $this->cache, $this->container);
+        return new BunnyCDNAdapter(array_merge($config, $defaultConfig), $this->cache, $this->container);
     }
 }
