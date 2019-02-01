@@ -50,6 +50,10 @@ class AdapterCollectionSubscriber implements SubscriberInterface
         $mainAdapter = new BunnyCDNAdapter(array_merge($config, $defaultConfig), $this->cache, $this->container);
 
         $local = new Local($this->container->getParameter('frosh_bunnycdn_media_storage.cache_dir'));
+
+        /*
+         * REALLY?! one file?! 😡
+         */
         $cacheStore = new Adapter($local, 'file', null);
 
         return new CachedAdapter($mainAdapter, $cacheStore);
