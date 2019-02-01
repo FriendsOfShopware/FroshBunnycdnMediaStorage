@@ -102,7 +102,7 @@ class BunnyCDNAdapter implements AdapterInterface
 
         if (!$result[$path]) {
             $result[$path] = true;
-            $this->cache->save($this->getCacheKey($path), $result);
+            //$this->cache->save($this->getCacheKey($path), $result);
         }
 
         $type = 'file';
@@ -214,7 +214,7 @@ class BunnyCDNAdapter implements AdapterInterface
             return false;
         }
 
-        $this->cache->delete($this->getCacheKey($path));
+        //$this->cache->delete($this->getCacheKey($path));
 
         return true;
     }
@@ -275,7 +275,7 @@ class BunnyCDNAdapter implements AdapterInterface
         if (!isset($result[$path])) {
             if ((bool) $this->getSize($path)) {
                 $result[$path] = true;
-                $this->cache->save($this->getCacheKey($path), $result);
+                //$this->cache->save($this->getCacheKey($path), $result);
             }
         }
 

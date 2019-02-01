@@ -6,7 +6,12 @@ use Doctrine\Common\Cache\FilesystemCache;
 use Enlight\Event\SubscriberInterface;
 use Enlight_Event_EventArgs;
 use FroshBunnycdnMediaStorage\Components\BunnyCDNAdapter;
+use League\Flysystem\Adapter\Local;
+use League\Flysystem\AdapterInterface;
+use League\Flysystem\Cached\CachedAdapter;
+use League\Flysystem\Cached\Storage\Adapter;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use League\Flysystem\Filesystem;
 
 class AdapterCollectionSubscriber implements SubscriberInterface
 {
@@ -34,15 +39,19 @@ class AdapterCollectionSubscriber implements SubscriberInterface
      *
      * @param Enlight_Event_EventArgs $args
      *
-     * @throws \Zend_Cache_Exception
-     *
-     * @return BunnyCDNAdapter
+     * @return CachedAdapter
      */
     public function createBunnyCDNAdapter(Enlight_Event_EventArgs $args)
     {
         $defaultConfig = ['migration' => false];
         $config = $args->get('config');
 
-        return new BunnyCDNAdapter(array_merge($config, $defaultConfig), $this->cache, $this->container);
+        // Create the adapter
+        $mainAdapter = new BunnyCDNAdapter(array_merge($config, $defaultConfig), $this->cache, $this->container);
+
+        $local = new Local($this->container->getParameter('frosh_bunnycdn_media_storage.cache_dir'));
+        $cacheStore = new Adapter($local, 'file', null);
+
+        return new CachedAdapter($mainAdapter, $cacheStore);
     }
 }
