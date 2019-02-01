@@ -34,8 +34,6 @@ class AdapterCollectionSubscriber implements SubscriberInterface
      *
      * @param Enlight_Event_EventArgs $args
      *
-     * @throws \Zend_Cache_Exception
-     *
      * @return BunnyCDNAdapter
      */
     public function createBunnyCDNAdapter(Enlight_Event_EventArgs $args)
@@ -43,6 +41,6 @@ class AdapterCollectionSubscriber implements SubscriberInterface
         $defaultConfig = ['migration' => false];
         $config = $args->get('config');
 
-        return new BunnyCDNAdapter(array_merge($config, $defaultConfig), $this->cache, $this->container);
+        return new BunnyCDNAdapter(array_merge($config, $defaultConfig), $this->cache, $this->container->initialized('Shop'));
     }
 }

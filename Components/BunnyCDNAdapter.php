@@ -6,7 +6,6 @@ use Doctrine\Common\Cache\FilesystemCache;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Config;
 use League\Flysystem\Util;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class BunnyCDNAdapter implements AdapterInterface
 {
@@ -17,15 +16,15 @@ class BunnyCDNAdapter implements AdapterInterface
     /** @var FilesystemCache */
     private $cache;
 
-    /** @var ContainerInterface */
-    private $container;
+    /** @var bool */
+    private $shopInitialized;
 
-    public function __construct($config, FilesystemCache $cache, ContainerInterface $container)
+    public function __construct($config, FilesystemCache $cache, $shopInitialized)
     {
         $this->apiUrl = $config['apiUrl'];
         $this->apiKey = $config['apiKey'];
         $this->url = $config['mediaUrl'];
-        $this->container = $container;
+        $this->shopInitialized = $shopInitialized;
         $this->cache = $cache;
     }
 
@@ -266,7 +265,7 @@ class BunnyCDNAdapter implements AdapterInterface
      */
     public function has($path)
     {
-        if ($this->container->has('Shop')) {
+        if ($this->shopInitialized) {
             return true;
         }
 
