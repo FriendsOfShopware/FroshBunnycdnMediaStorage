@@ -5,13 +5,14 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
-        <parameter key="frosh_bunnycdn_media_storage.cache_dir">%kernel.cache_dir%/bunnycdn</parameter>
-       </parameters>
+        <parameter key="frosh_bunnycdn_media_storage.cache_dir">%kernel.root_dir%/var/cache/bunnycdn_storage</parameter>
+    </parameters>
 
     <services>
-        <service id="frosh_bunnycdn_media_storage.subscriber.adapter_collection_subscriber" class="FroshBunnycdnMediaStorage\Subscriber\AdapterCollectionSubscriber">
-            <argument type="service" id="service_container" />
-            <argument type="service" id="frosh_bunnycdn_media_storage.cache" />
+        <service id="frosh_bunnycdn_media_storage.subscriber.adapter_collection_subscriber"
+                 class="FroshBunnycdnMediaStorage\Subscriber\AdapterCollectionSubscriber">
+            <argument type="service" id="service_container"/>
+            <argument type="service" id="frosh_bunnycdn_media_storage.cache"/>
             <tag name="shopware.event_subscriber"/>
         </service>
 
