@@ -134,8 +134,6 @@ class BunnyCDNAdapter implements AdapterInterface
      * @param resource $resource
      * @param Config   $config   Config object
      *
-     * @throws \Zend_Cache_Exception
-     *
      * @return array|false false on failure file meta data on success
      */
     public function updateStream($path, $resource, Config $config)
@@ -213,7 +211,7 @@ class BunnyCDNAdapter implements AdapterInterface
             return false;
         }
 
-        $this->cache->delete($this->getCacheKey($path));
+        $this->removeFromCache($path);
 
         return true;
     }
@@ -403,6 +401,16 @@ class BunnyCDNAdapter implements AdapterInterface
             'path' => $path,
             'visibility' => AdapterInterface::VISIBILITY_PUBLIC,
         ];
+    }
+
+    private function removeFromCache($path)
+    {
+        $result = $this->getCached($path);
+
+        if (isset($result[$path])) {
+            unset($result[$path]);
+            $this->cache->save($this->getCacheKey($path), $result);
+        }
     }
 
     private function getCacheKey($path)
