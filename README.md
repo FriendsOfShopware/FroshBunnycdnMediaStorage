@@ -22,7 +22,8 @@ Update your `config.php` in your root directory and fill in your own values
                 'type' => 'bunnycdn',
                 'mediaUrl' => 'https://example.b-cdn.net/',
                 'apiUrl' => 'https://storage.bunnycdn.com/example/',
-                'apiKey' => 'secret-api-key'
+                'apiKey' => 'secret-api-key',
+                'accountApiKey' => 'secret-account-api-key'
             ]
      ]
 ]

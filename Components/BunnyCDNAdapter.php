@@ -11,6 +11,7 @@ class BunnyCDNAdapter implements AdapterInterface
 {
     private $apiKey;
     private $apiUrl;
+    private $accountApiKey;
     private $url;
 
     /** @var FilesystemCache */
@@ -23,6 +24,7 @@ class BunnyCDNAdapter implements AdapterInterface
     {
         $this->apiUrl = $config['apiUrl'];
         $this->apiKey = $config['apiKey'];
+        $this->accountApiKey = $config['accountApiKey'];
         $this->url = $config['mediaUrl'];
         $this->shopInitialized = $shopInitialized;
         $this->cache = $cache;
@@ -68,7 +70,6 @@ class BunnyCDNAdapter implements AdapterInterface
      */
     public function writeStream($path, $resource, Config $config)
     {
-        //$dataLength = filesize($resource);
         $curl = curl_init();
         curl_setopt_array($curl,
             [
@@ -105,6 +106,8 @@ class BunnyCDNAdapter implements AdapterInterface
         }
 
         $type = 'file';
+
+        $this->purgeCDNCache($path);
 
         return compact('type', 'path', 'visibility');
     }
@@ -225,7 +228,7 @@ class BunnyCDNAdapter implements AdapterInterface
      */
     public function deleteDir($dirname)
     {
-        return $this->delete($dirname);
+        return $this->delete($dirname . '/');
     }
 
     /**
@@ -401,6 +404,30 @@ class BunnyCDNAdapter implements AdapterInterface
             'path' => $path,
             'visibility' => AdapterInterface::VISIBILITY_PUBLIC,
         ];
+    }
+
+    private function purgeCDNCache($path)
+    {
+        if ($this->accountApiKey) {
+            $curl = curl_init();
+            curl_setopt_array($curl,
+                [
+                    CURLOPT_URL => 'https://bunnycdn.com/api/purge?url=' . urlencode($this->url . $path),
+                    CURLOPT_RETURNTRANSFER => 1,
+                    CURLOPT_TIMEOUT => 60000,
+                    CURLOPT_FOLLOWLOCATION => 0,
+                    CURLOPT_FAILONERROR => 0,
+                    CURLOPT_SSL_VERIFYPEER => 1,
+                    CURLOPT_VERBOSE => 0,
+                    CURLOPT_HTTPHEADER => [
+                        'accesskey: ' . $this->accountApiKey,
+                    ],
+                ]);
+
+            $response = curl_exec($curl);
+            $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE); // Cleanup
+            curl_close($curl);
+        }
     }
 
     private function removeFromCache($path)
