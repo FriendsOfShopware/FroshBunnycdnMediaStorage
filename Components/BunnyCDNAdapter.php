@@ -45,7 +45,6 @@ class BunnyCDNAdapter implements AdapterInterface
         fwrite($stream, $contents);
         rewind($stream);
         $result = $this->writeStream($path, $stream, $config);
-        fclose($stream);
 
         if ($result === false) {
             return false;
@@ -99,7 +98,7 @@ class BunnyCDNAdapter implements AdapterInterface
 
         $result = $this->getCached($path);
 
-        if (!$result[$path]) {
+        if (!isset($result[$path])) {
             $result[$path] = true;
             $this->cache->save($this->getCacheKey($path), $result);
         }
