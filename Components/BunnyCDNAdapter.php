@@ -231,7 +231,6 @@ class BunnyCDNAdapter implements AdapterInterface
      * Create a directory.
      *
      * @param string $dirname directory name
-     * @param Config $config
      *
      * @return array|false
      */
@@ -258,11 +257,21 @@ class BunnyCDNAdapter implements AdapterInterface
      *
      * @param string $path
      *
-     * @return array|bool|null
+     * @return bool
      */
     public function has($path)
     {
+        /*
+         * Frontend shouldn't check, if file exists. Cause it won't fix it!
+         */
         if ($this->shopInitialized) {
+            return true;
+        }
+
+        /*
+         * If path contains '?', it's variable thumbnail. So always correct.
+         */
+        if (strpos($path, '?') !== false) {
             return true;
         }
 

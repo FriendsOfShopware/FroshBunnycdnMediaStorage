@@ -19,5 +19,21 @@
         <service id="frosh_bunnycdn_media_storage.cache" class="Doctrine\Common\Cache\FilesystemCache">
             <argument type="string">%frosh_bunnycdn_media_storage.cache_dir%</argument>
         </service>
+
+        <service id="thumbnail_generator_bunnycdn" class="FroshBunnycdnMediaStorage\Components\ThumbnailGenerator"
+                 decorates="thumbnail_generator_basic">
+            <argument type="service" id="frosh_bunnycdn_media_storage.config"/>
+            <argument type="service" id="thumbnail_generator_bunnycdn.inner"/>
+        </service>
+
+        <service class="FroshBunnycdnMediaStorage\Subscriber\LegacyStructConverterSubscriber">
+            <tag name="shopware.event_subscriber"/>
+        </service>
+
+        <service id="frosh_bunnycdn_media_storage.config" class="Shopware\Components\Plugin\CachedConfigReader">
+            <factory service="shopware.plugin.cached_config_reader" method="getByPluginName"/>
+            <argument type="string">%frosh_bunnycdn_media_storage.plugin_name%</argument>
+        </service>
+
     </services>
 </container>
