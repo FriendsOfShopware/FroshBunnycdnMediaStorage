@@ -10,7 +10,7 @@
             <value>false</value>
             <description>Use variable widths and heights to work with Manipulation Engine from bunnyCDN. This engine has to be enabled in bunnyCDN-Dashboard.
                 Clear all caches after changing this option.
-                ATTENTION: when disabling, you would have to generate the thumbnail on your own.</description>
+                ATTENTION: when disabling, you would have to generate the thumbnails on your own.</description>
 
         </element>
 

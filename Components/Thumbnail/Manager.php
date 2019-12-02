@@ -63,8 +63,8 @@ class Manager extends \Shopware\Components\Thumbnail\Manager
             $thumbnails[] = [
                 'maxWidth' => $size['width'],
                 'maxHeight' => $size['height'],
-                'source' => $this->mediaService->encode($path . $name . '.' . $extension) . '?width=' . $size['width'],
-                'retinaSource' => $this->mediaService->encode($path . $name . '.' . $extension) . '?width=' . $size['width'] * 2,
+                'source' => $this->mediaService->encode($path . $name . '.' . $extension) . '?width=' . $size['width'] . '&height=' . $size['height'],
+                'retinaSource' => $this->mediaService->encode($path . $name . '.' . $extension) . '?width=' . ($size['width'] * 2) . '&height=' . ($size['height'] * 2),
             ];
         }
 

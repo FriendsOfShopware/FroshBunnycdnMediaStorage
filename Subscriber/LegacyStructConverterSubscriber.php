@@ -28,8 +28,8 @@ class LegacyStructConverterSubscriber implements SubscriberInterface
 
         foreach ($data['thumbnails'] as &$thumbnail) {
             $thumbnail = [
-                'source' => $this->getSource($media, $thumbnail['maxWidth']),
-                'retinaSource' => $this->getRetinaSource($media, $thumbnail['maxWidth']),
+                'source' => $this->getSource($media, $thumbnail['maxWidth'], $thumbnail['maxHeight']),
+                'retinaSource' => $this->getRetinaSource($media, $thumbnail['maxWidth'], $thumbnail['maxHeight']),
                 'sourceSet' => $this->getSourceSet($media, $thumbnail),
                 'maxWidth' => $thumbnail['maxWidth'],
                 'maxHeight' => $thumbnail['maxHeight'],
@@ -44,17 +44,17 @@ class LegacyStructConverterSubscriber implements SubscriberInterface
     /**
      * @return string
      */
-    private function getSource(Media $media, int $maxWidth)
+    private function getSource(Media $media, int $maxWidth, int $maxHeight)
     {
-        return $media->getFile() . '?width=' . $maxWidth;
+        return $media->getFile() . '?width=' . $maxWidth . '&height=' . $maxHeight;
     }
 
     /**
      * @return string
      */
-    private function getRetinaSource(Media $media, int $maxWidth)
+    private function getRetinaSource(Media $media, int $maxWidth, int $maxHeight)
     {
-        return $media->getFile() . '?width=' . ($maxWidth * 2);
+        return $media->getFile() . '?width=' . ($maxWidth * 2) . '&height=' . ($maxHeight * 2);
     }
 
     /**
@@ -65,8 +65,8 @@ class LegacyStructConverterSubscriber implements SubscriberInterface
      */
     private function getSourceSet($media, $thumbnail)
     {
-        $source = $this->getSource($media, $thumbnail['maxWidth']);
-        $retinaSource = $this->getRetinaSource($media, $thumbnail['maxWidth']);
+        $source = $this->getSource($media, $thumbnail['maxWidth'], $thumbnail['maxHeight']);
+        $retinaSource = $this->getRetinaSource($media, $thumbnail['maxWidth'], $thumbnail['maxHeight']);
 
         if ($retinaSource !== null) {
             return sprintf('%s, %s 2x', $source, $retinaSource);
