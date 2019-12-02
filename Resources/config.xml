@@ -9,7 +9,7 @@
             <label lang="de">aktiviere Manipulation Engine</label>
             <value>false</value>
             <description>Use variable widths and heights to work with Manipulation Engine from bunnyCDN. This engine has to be enabled in bunnyCDN-Dashboard.
-                Clear all caches after changing this option.
+                Clear all caches after changing this option. Regenerate thumbnails to get rid of images of old thumbnail-system!
                 ATTENTION: when disabling, you would have to generate the thumbnails on your own.</description>
 
         </element>
