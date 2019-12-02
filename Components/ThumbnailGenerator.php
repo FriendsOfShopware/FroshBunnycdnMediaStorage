@@ -39,6 +39,9 @@ class ThumbnailGenerator implements GeneratorInterface
             $this->parentGenerator->createThumbnail($image, $destination, $maxWidth, $maxHeight, $keepProportions, $quality);
         } else {
             //remove old thumbnails from bunnyCDN
+            if (strpos($destination, '?') !== false) {
+                return;
+            }
             if ($this->mediaService->has($destination)) {
                 $this->mediaService->delete($destination);
             }
