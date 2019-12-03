@@ -11,7 +11,6 @@ class BunnyCDNAdapter implements AdapterInterface
 {
     private $apiKey;
     private $apiUrl;
-    private $url;
 
     /** @var FilesystemCache */
     private $cache;
@@ -23,7 +22,6 @@ class BunnyCDNAdapter implements AdapterInterface
     {
         $this->apiUrl = $config['apiUrl'];
         $this->apiKey = $config['apiKey'];
-        $this->url = $config['mediaUrl'];
         $this->shopInitialized = $shopInitialized;
         $this->cache = $cache;
     }
@@ -34,8 +32,6 @@ class BunnyCDNAdapter implements AdapterInterface
      * @param string $path
      * @param string $contents
      * @param Config $config   Config object
-     *
-     * @throws \Zend_Cache_Exception
      *
      * @return array|false false on failure file meta data on success
      */
@@ -51,7 +47,6 @@ class BunnyCDNAdapter implements AdapterInterface
         }
 
         $result['contents'] = $contents;
-        $result['mimetype'] = Util::guessMimeType($path, $contents);
 
         return $result;
     }
@@ -67,32 +62,33 @@ class BunnyCDNAdapter implements AdapterInterface
      */
     public function writeStream($path, $resource, Config $config)
     {
-        //$dataLength = filesize($resource);
+        $filesize = (int) fstat($resource)['size'];
         $curl = curl_init();
         curl_setopt_array($curl,
             [
                 CURLOPT_CUSTOMREQUEST => 'PUT',
-                CURLOPT_URL => $this->apiUrl . $path,
+                CURLOPT_URL => $this->apiUrl . $this->urlencodePath($path),
                 CURLOPT_RETURNTRANSFER => 1,
                 CURLOPT_TIMEOUT => 60000,
                 CURLOPT_FOLLOWLOCATION => 0,
                 CURLOPT_FAILONERROR => 0,
-                CURLOPT_SSL_VERIFYPEER => 1,
-                CURLOPT_VERBOSE => 0,
                 CURLOPT_INFILE => $resource,
-                CURLOPT_INFILESIZE => fstat($resource)['size'],
+                CURLOPT_INFILESIZE => $filesize,
+                CURLOPT_POST => 1,
                 CURLOPT_UPLOAD => 1,
                 CURLOPT_HTTPHEADER => [
-                    'accesskey: ' . $this->apiKey,
+                    'AccessKey: ' . $this->apiKey,
                 ],
             ]);
+
         // Send the request
+        $currentTime = time();
         $response = curl_exec($curl);
-        $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE); // Cleanup
+        $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
         fclose($resource);
 
-        if ($http_code != 201) {
+        if ((int) $http_code !== 201) {
             return false;
         }
 
@@ -103,9 +99,14 @@ class BunnyCDNAdapter implements AdapterInterface
             $this->cache->save($this->getCacheKey($path), $result);
         }
 
-        $type = 'file';
-
-        return compact('type', 'path', 'visibility');
+        return [
+            'type' => 'file',
+            'path' => $path,
+            'timestamp' => $currentTime,
+            'size' => $filesize,
+            'visibility' => AdapterInterface::VISIBILITY_PUBLIC,
+            'mimetype' => Util::guessMimeType($path, ''),
+        ];
     }
 
     /**
@@ -114,8 +115,6 @@ class BunnyCDNAdapter implements AdapterInterface
      * @param string $path
      * @param string $contents
      * @param Config $config   Config object
-     *
-     * @throws \Zend_Cache_Exception
      *
      * @return array|false false on failure file meta data on success
      */
@@ -148,8 +147,6 @@ class BunnyCDNAdapter implements AdapterInterface
      * @param string $path
      * @param string $newpath
      *
-     * @throws \Zend_Cache_Exception
-     *
      * @return bool
      */
     public function rename($path, $newpath)
@@ -165,8 +162,6 @@ class BunnyCDNAdapter implements AdapterInterface
      *
      * @param string $path
      * @param string $newpath
-     *
-     * @throws \Zend_Cache_Exception
      *
      * @return bool
      */
@@ -202,11 +197,10 @@ class BunnyCDNAdapter implements AdapterInterface
             ]);
 
         $result = curl_exec($curl);
-        $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $http_code = (int) curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
 
-        //For error checking
-        if ($result === false || $http_code != 200) {
+        if ($result === false || $http_code !== 200) {
             return false;
         }
 
@@ -277,11 +271,8 @@ class BunnyCDNAdapter implements AdapterInterface
 
         $result = $this->getCached($path);
 
-        if (!isset($result[$path])) {
-            if ((bool) $this->getSize($path)) {
-                $result[$path] = true;
-                $this->cache->save($this->getCacheKey($path), $result);
-            }
+        if (!isset($result[$path]) && $result[$path] = (bool) $this->getSize($path)) {
+            $this->cache->save($this->getCacheKey($path), $result);
         }
 
         return $result[$path];
@@ -318,7 +309,7 @@ class BunnyCDNAdapter implements AdapterInterface
         return [
             'type' => 'file',
             'path' => $path,
-            'stream' => fopen($this->apiUrl . $path . '?AccessKey=' . $this->apiKey, 'r'),
+            'stream' => fopen($this->apiUrl . $path . '?AccessKey=' . $this->apiKey, 'rb'),
         ];
     }
 
@@ -344,7 +335,7 @@ class BunnyCDNAdapter implements AdapterInterface
      */
     public function getMetadata($path)
     {
-        $headers = get_headers($this->apiUrl . $path . '?AccessKey=' . $this->apiKey, true);
+        $headers = get_headers($this->apiUrl . $this->urlencodePath($path) . '?AccessKey=' . $this->apiKey, true);
 
         if (strpos($headers[0], '200') === false) {
             return false;
@@ -411,6 +402,17 @@ class BunnyCDNAdapter implements AdapterInterface
         ];
     }
 
+    private function urlencodePath($path)
+    {
+        $parts = explode('/', $path);
+        foreach ($parts as &$value) {
+            $value = urlencode($value);
+        }
+        unset($value);
+
+        return implode('/', $parts);
+    }
+
     private function removeFromCache($path)
     {
         $result = $this->getCached($path);
@@ -459,7 +461,7 @@ class BunnyCDNAdapter implements AdapterInterface
                 CURLOPT_SSL_VERIFYPEER => 1,
                 CURLOPT_VERBOSE => 0,
                 CURLOPT_HTTPHEADER => [
-                    'accesskey: ' . $this->apiKey,
+                    'AccessKey: ' . $this->apiKey,
                 ],
             ]);
         // Send the request
@@ -467,7 +469,7 @@ class BunnyCDNAdapter implements AdapterInterface
         curl_close($curl);
         $result = [];
 
-        foreach (json_decode($response) as $content) {
+        foreach (json_decode($response, false) as $content) {
             $result[] = [
                 'basename' => $content->ObjectName,
                 'path' => $directory . '/' . $content->ObjectName,
@@ -475,7 +477,10 @@ class BunnyCDNAdapter implements AdapterInterface
             ];
 
             if ($recursive && $content->IsDirectory) {
-                $result = array_merge($result, $this->getDirContent($directory . '/' . $content->ObjectName, true));
+                $subContents = $this->getDirContent($directory . '/' . $content->ObjectName, true);
+                foreach ($subContents as $subContent) {
+                    $result[] = $subContent;
+                }
             }
         }
 
