@@ -2,7 +2,7 @@
 
 namespace FroshBunnycdnMediaStorage\Components;
 
-use Shopware\Bundle\MediaBundle\MediaService;
+use Shopware\Bundle\MediaBundle\MediaServiceInterface;
 use Shopware\Components\Thumbnail\Generator\GeneratorInterface;
 
 class ThumbnailGenerator implements GeneratorInterface
@@ -11,7 +11,7 @@ class ThumbnailGenerator implements GeneratorInterface
     private $mediaService;
     private $shouldRun = true;
 
-    public function __construct(array $config, MediaService $mediaService, GeneratorInterface $parentGenerator)
+    public function __construct(array $config, MediaServiceInterface $mediaService, GeneratorInterface $parentGenerator)
     {
         $this->parentGenerator = $parentGenerator;
         $this->mediaService = $mediaService;
