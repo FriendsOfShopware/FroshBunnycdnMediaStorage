@@ -33,6 +33,9 @@ Update your `config.php` in your root directory and fill in your own values
 
 More info: https://developers.shopware.com/developers-guide/shopware-5-media-service/#file-system-adapters
 
+## Suggestions
+
+- [FroshThumbnailProcessor](https://github.com/FriendsOfShopware/FroshThumbnailProcessor)
 
 ## License
 
