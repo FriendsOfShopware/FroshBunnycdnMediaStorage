@@ -341,11 +341,17 @@ class BunnyCDNAdapter implements AdapterInterface
             return false;
         }
 
+        $size = (int)$headers['Content-Length'];
+
+        if (!$size) {
+            return false;
+        }
+
         return [
             'type' => 'file',
             'path' => $path,
-            'timestamp' => (int) strtotime($headers['Last-Modified']),
-            'size' => (int) $headers['Content-Length'],
+            'timestamp' => (int)strtotime($headers['Last-Modified']),
+            'size' => $size,
             'visibility' => AdapterInterface::VISIBILITY_PUBLIC,
             'mimetype' => $headers['Content-Type'],
         ];
