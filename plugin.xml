@@ -12,8 +12,8 @@
     <link>https://github.com/FriendsOfShopware/FroshBunnycdnMediaStorage</link>
     <author>Friends of Shopware</author>
 
-    <description lang="en">Media-Storage-Adapter for bunnyCDN</description>
-    <description lang="de">Media-Storage-Adapter für bunnyCDN</description>
+    <description lang="en">Media-Storage-Adapter for bunnyCDN. Speed up your images delivery!</description>
+    <description lang="de">Media-Storage-Adapter für bunnyCDN. Beschleunige die Auslieferung der Bilder!</description>
 
     <changelog version="1.0.4">
         <changes lang="de">kleine Fehlerbehebungen</changes>
@@ -43,8 +43,6 @@
         ]]></changes>
     </changelog>
 
-    <compatibility minVersion="5.2.0">
-        <blacklist>TinectMediaBunnycdn</blacklist>
-    </compatibility>
+    <compatibility minVersion="5.2.0"/>
 
 </plugin>
