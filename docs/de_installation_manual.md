@@ -46,13 +46,13 @@ return array (
 );
 ```
     
--  Transferiere nun deine aktuelle Medienbibliothek in deinen Storage. Nutze dazu den Befehl auf der Console im Shopware-Verzeichnis: "bin/console sw:media:migrate --from=local --to=bunnycdn".  
+-  Transferiere nun deine aktuelle Medienbibliothek in deinen Storage. Nutze dazu den Befehl auf der Console im Shopware-Verzeichnis: `bin/console sw:media:migrate --from=local --to=bunnycdn`.  
         Sollte es während dessen zu Timeout-Meldungen kommen, können Sie den Prozess erneut starten.  
         Dabei werden die Dateien transferiert und lokal entfernt. Dies ist nur einmal initital notwendig, damit die
         aktuellen Daten transferiert werden. Dies kann je nach Shopgröße etwas Zeit in Anspruch nehmen.  
         Mehr Infos zu diesem Prozess gibt es auch in den Shopware-Dokus: [https://developers.shopware.com/developers-guide/shopware-5-media-service/#file-system-adapters](https://developers.shopware.com/developers-guide/shopware-5-media-service/#file-system-adapters)
     
-- Ändere den Wert "'backend' => 'local'" in "'backend' => 'bunnycdn'" und deaktiviere den Wartungsmodus
+- Ändere den Wert ``'backend' => 'local'` in `'backend' => 'bunnycdn'` und deaktiviere den Wartungsmodus
 - Alle neuen Dateien, die in Shopware hochgeladen werden, werden automatisch nach BunnyCDN transferiert, solange
         das Plugin installiert und aktiviert ist
     
