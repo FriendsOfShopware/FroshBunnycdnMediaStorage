@@ -28,7 +28,7 @@ stages:
     -   name: Store-Sync
         if: branch = master AND env(PLUGIN_ID) IS present AND type != pull_request
     -   name: Store-Deploy
-        if: tag IS present
+        if: branch = master AND env(PLUGIN_ID) IS present AND type != pull_request
 
 jobs:
     include:
