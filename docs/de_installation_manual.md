@@ -52,7 +52,7 @@ return array (
         aktuellen Daten transferiert werden. Dies kann je nach Shopgröße etwas Zeit in Anspruch nehmen.  
         Mehr Infos zu diesem Prozess gibt es auch in den Shopware-Dokus: [https://developers.shopware.com/developers-guide/shopware-5-media-service/#file-system-adapters](https://developers.shopware.com/developers-guide/shopware-5-media-service/#file-system-adapters)
     
-- Ändere den Wert ``'backend' => 'local'` in `'backend' => 'bunnycdn'` und deaktiviere den Wartungsmodus
+- Ändere den Wert `'backend' => 'local'` in `'backend' => 'bunnycdn'` und deaktiviere den Wartungsmodus
 - Alle neuen Dateien, die in Shopware hochgeladen werden, werden automatisch nach BunnyCDN transferiert, solange
         das Plugin installiert und aktiviert ist
     
