@@ -14,7 +14,7 @@
                 'type' => 'bunnycdn',
                 'mediaUrl' => 'https://PULLZONE.b-cdn.net/', /* Dies kann auch eine selbstdefinierte Subdomain sein, die bei bunnyCDN hinterlegt wurde */
                 'apiUrl' => 'https://storage.bunnycdn.com/STORAGEZONENAME/',
-                'apiKey' => 'secret-api-key' /* entspricht dem Password */
+                'apiKey' => 'secret-api-key' /* entspricht dem FTP-Passwort mit Schreibrechten */
                 ]
         ]
 ]
