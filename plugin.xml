@@ -12,8 +12,8 @@
     <link>https://github.com/FriendsOfShopware/FroshBunnycdnMediaStorage</link>
     <author>Friends of Shopware</author>
 
-    <description lang="en">Media-Storage-Adapter for bunnyCDN. Speed up your images delivery!</description>
-    <description lang="de">Media-Storage-Adapter für bunnyCDN. Beschleunige die Auslieferung der Bilder!</description>
+    <description lang="en">Transfer all your files to BunnyCDN. This will speed up the delivery of the pictures including thumbnails! Free up space! Benefit from smaller backups!</description>
+    <description lang="de">Transferiere Deine Dateien nach BunnyCDN. Beschleunige dadurch die Auslieferung der Bilder! Mach Speicherplatz frei! Profitiere von kleineren Backups!</description>
 
     <changelog version="1.0.4">
         <changes lang="de">kleine Fehlerbehebungen</changes>
