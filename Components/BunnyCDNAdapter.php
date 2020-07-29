@@ -62,6 +62,7 @@ class BunnyCDNAdapter implements AdapterInterface
      */
     public function writeStream($path, $resource, Config $config)
     {
+
         $filesize = (int) fstat($resource)['size'];
         $curl = curl_init();
         curl_setopt_array($curl,
@@ -271,11 +272,17 @@ class BunnyCDNAdapter implements AdapterInterface
 
         $result = $this->getCached($path);
 
-        if (!isset($result[$path]) && $result[$path] = (bool) $this->getSize($path)) {
-            $this->cache->save($this->getCacheKey($path), $result);
+        if (isset($result[$path]) && $result[$path]) {
+            return true;
         }
 
-        return $result[$path];
+        if ($result[$path] = (bool)$this->getSize($path)) {
+            $this->cache->save($this->getCacheKey($path), $result);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -341,7 +348,7 @@ class BunnyCDNAdapter implements AdapterInterface
             return false;
         }
 
-        $size = (int)$headers['Content-Length'];
+        $size = (int)$this->getBunnyCdnHeader($headers, 'Content-Length');
 
         if (!$size) {
             return false;
@@ -350,10 +357,10 @@ class BunnyCDNAdapter implements AdapterInterface
         return [
             'type' => 'file',
             'path' => $path,
-            'timestamp' => (int)strtotime($headers['Last-Modified']),
+            'timestamp' => (int)strtotime($this->getBunnyCdnHeader($headers, 'Last-Modified')),
             'size' => $size,
             'visibility' => AdapterInterface::VISIBILITY_PUBLIC,
-            'mimetype' => $headers['Content-Type'],
+            'mimetype' => $this->getBunnyCdnHeader($headers, 'Content-Type'),
         ];
     }
 
@@ -412,7 +419,7 @@ class BunnyCDNAdapter implements AdapterInterface
     {
         $parts = explode('/', $path);
         foreach ($parts as &$value) {
-            $value = urlencode($value);
+            $value = rawurlencode($value);
         }
         unset($value);
 
@@ -491,5 +498,21 @@ class BunnyCDNAdapter implements AdapterInterface
         }
 
         return $result;
+    }
+
+    /**
+     * this creapy method is important, cause BunnyCdn random results headers to be lowercase
+     */
+    private function getBunnyCdnHeader(array $headers, string $header)
+    {
+
+        if (isset($headers[$header])) {
+            return $headers[$header];
+        }
+
+        if (isset($headers[strtolower($header)])) {
+            return $headers[strtolower($header)];
+        }
+        return null;
     }
 }
