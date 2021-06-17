@@ -10,13 +10,14 @@
 
     <services>
         <service id="frosh_bunnycdn_media_storage.subscriber.adapter_collection_subscriber"
-                 class="FroshBunnycdnMediaStorage\Subscriber\AdapterCollectionSubscriber">
+                 class="FroshBunnycdnMediaStorage\Subscriber\AdapterCollectionSubscriber"
+                 public="true">
             <argument type="service" id="service_container"/>
             <argument type="service" id="frosh_bunnycdn_media_storage.cache"/>
             <tag name="shopware.event_subscriber"/>
         </service>
 
-        <service id="frosh_bunnycdn_media_storage.cache" class="Doctrine\Common\Cache\FilesystemCache">
+        <service id="frosh_bunnycdn_media_storage.cache" class="Doctrine\Common\Cache\FilesystemCache" public="true">
             <argument type="string">%frosh_bunnycdn_media_storage.cache_dir%</argument>
         </service>
     </services>
